@@ -10,7 +10,8 @@ const rule = () => ({
 
 const HeaderStyle = createComponent(rule)
 
-export default class InnerContainer extends Component {
+class Header extends Component {
+
     render() {
         return (
             <HeaderStyle>
@@ -19,3 +20,6 @@ export default class InnerContainer extends Component {
         )
     }
 }
+
+
+export default Header

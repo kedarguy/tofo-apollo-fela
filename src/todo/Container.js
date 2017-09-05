@@ -8,6 +8,7 @@ const rule = () => ({
     backgroundColor: '#18BE9A',
     fontSize: '40px',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center'

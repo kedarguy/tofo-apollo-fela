@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import { createComponent } from 'react-fela';
+import React, {Component} from 'react';
+import {createComponent} from 'react-fela';
 import Todo from './Todo.js'
-import { graphql, gql } from 'react-apollo'
+import {graphql, gql, compose} from 'react-apollo'
+import CreateTodo from './CreateTodo.js'
+
 
 const rule = () => ({
     width: '100%',
@@ -13,59 +15,67 @@ const rule = () => ({
     alignItems: 'center',
 })
 
-const TodoListStyle = createComponent(rule)
-
 class TodoList extends Component {
-    constructor() {
-        super()
-        this.state = {
-            todos: [
-                {
-                    desc: 'first todo',
-                    isComplete: true
-                },
-                {
-                    desc: 'second todo',
-                    isComplete: false
-                },
-                {
-                    desc: 'third todo',
-                    isComplete: true
-                },
-                {
-                    desc: '4 todo',
-                    isComplete: false
-                }
-            ]
+
+    toggleTodoIsComplete(todo) {
+        this.props.toggleTodoMutation({
+            variables: {
+                id: todo.id,
+                isComplete: !todo.isComplete
+            },
+        })
+            .then(({data}) => {
+                console.log('got data from mutation ', data)
+            }).catch((error) => {
+            console.log('error sending mutation', error)
+        });
+    }
+
+    _updateCacheAfterTodo = (store, createTodo) => {
+
+        const data = store.readQuery({ query: ALL_TODOES_QUERY })
+
+        data.todos.push(createTodo);
+
+        store.writeQuery({ query: ALL_TODOES_QUERY, data })
+    }
+
+
+    render() {
+        if (this.props.allTodoesQuery && this.props.allTodoesQuery.loading) {
+            return <div>Loading</div>
         }
 
-    }
-    render() {
-        if (this.props.allTodosQuery && this.props.allTodosQuery.loading) {
-            return <div>Loading</div>
-          }
-        
-          if (this.props.allTodosQuery && this.props.allTodosQuery.error) {
+        if (this.props.allTodoesQuery && this.props.allTodoesQuery.error) {
             return <div>Error</div>
-          }
-        
-          const TodosToRender = this.props.allTodosQuery.allTodoes
+        }
+
+
+        const TodoesToRender = this.props.allTodoesQuery.allTodoes
+
         return (
-            <TodoListStyle>
-                {TodosToRender.map(todo =>
-                    <Todo
-                        key={todo.id}
-                        todo={todo}
-                    />
+            <div>
+                {TodoesToRender.map(todo => {
+                        return (
+                            <Todo
+                                key={todo.id}
+                                todo={todo}
+                                onClick={ e => this.toggleTodoIsComplete(todo, e) }
+                                updateStoreAfterCreateTodo={this._updateCacheAfterTodo}
+                            />
+                        )
+                    }
                 )}
-            </TodoListStyle>
+
+                <CreateTodo/>
+            </div>
         )
     }
 }
 
-const ALL_Todos_Query =gql `
+export const ALL_TODOES_QUERY = gql`
 
-query AllTodosQuery {
+query AllTodoesQuery {
     allTodoes {
         id
         createdAt
@@ -73,6 +83,28 @@ query AllTodosQuery {
         description
     }
 }
-` 
 
-export default graphql(ALL_Todos_Query, { name: 'allTodosQuery' }) (TodoList)
+`
+
+const TOGGLE_TODO_MUTATION = gql`
+
+mutation ToggleTodoMutation($id: ID! , $isComplete: Boolean!) {
+    updateTodo (
+        id: $id
+        isComplete: $isComplete
+    ) {
+        id
+        description
+        isComplete
+    
+    }
+}
+`
+
+const StyledTodoList = createComponent(rule, TodoList, props => Object.keys(props))
+
+
+export default compose(
+    graphql(ALL_TODOES_QUERY, {name: 'allTodoesQuery'}),
+    graphql(TOGGLE_TODO_MUTATION, {name: 'toggleTodoMutation'}))
+(StyledTodoList)
