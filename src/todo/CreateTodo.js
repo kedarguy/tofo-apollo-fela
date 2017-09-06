@@ -55,7 +55,7 @@ class createTodo extends Component {
             },
             update: (store, {data: { createTodo } }) => {
                 const data = store.readQuery({ query: ALL_TODOES_QUERY})
-                data.allTodoes.splice(0,0,createTodo)
+                data.allTodoes.splice(-1,0,createTodo)
                 store.writeQuery({
                     query: ALL_TODOES_QUERY,
                     data

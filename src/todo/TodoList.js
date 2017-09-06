@@ -33,11 +33,11 @@ class TodoList extends Component {
 
     _updateCacheAfterTodo = (store, createTodo) => {
 
-        const data = store.readQuery({ query: ALL_TODOES_QUERY })
+        const data = store.readQuery({query: ALL_TODOES_QUERY})
 
         data.todos.push(createTodo);
 
-        store.writeQuery({ query: ALL_TODOES_QUERY, data })
+        store.writeQuery({query: ALL_TODOES_QUERY, data})
     }
 
 

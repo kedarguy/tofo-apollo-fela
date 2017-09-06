@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { createComponent } from 'react-fela';
+import TodoCheckBox from './TodoCheckBox';
+import TodoDeleteBox from './TodoDeleteBox';
 
 const rule = (props) => {
     return ({
@@ -8,14 +10,8 @@ const rule = (props) => {
         fontSize: '40px',
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
-        '> .checkBox': {
-            border: '3px solid black',
-            marginRight: '10px',
-            backgroundColor: props.todo.isComplete ? '#30CA74' : '#F7F7F7',
-            color: props.todo.isComplete ? 'white' : 'black',
-            padding: '3px 10px'
-        }
+        justifyContent: 'space-between',
+
     })
 }
 
@@ -27,17 +23,17 @@ class Todo extends Component {
             <div
                 className={this.props.className}
             >
-                <div
-                    className="checkBox"
+                <TodoCheckBox
+                    isComplete={this.props.todo.isComplete}
                     onClick={ this.props.onClick }
 
-
-                >
-                    {this.props.todo.isComplete ? 'V' : 'X'}
-                </div>
+                />
                 <div>
                     {this.props.todo.description}
                 </div>
+                <TodoDeleteBox
+                    todoId={this.props.todo.id}
+                />
             </div>
         )
     }
